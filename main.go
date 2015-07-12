@@ -178,5 +178,33 @@ func main() {
 		[]int{2, 0, 4, 4},
 		[]int{0, 0, 0, 4},
 		[]int{0, 0, 0, 0}}
-	fmt.Print(g)
+	var i int
+	for {
+		fmt.Print(g)
+		fmt.Println("1 - Up, 2 - Down, 3 - Left, 4 - Right")
+		_, err := fmt.Scanf("%d", &i)
+		if err != nil || i < 1 || i > 4 {
+			fmt.Println("Exiting the game")
+			break
+		}
+		switch i {
+		case 1:
+			g.MoveUp()
+		case 2:
+			g.MoveDown()
+		case 3:
+			g.MoveLeft()
+		case 4:
+			g.MoveRight()
+		}
+		if g.Win() {
+			fmt.Printf("You won! You reached %d!\n", winningScore)
+			break
+		}
+		g.AddNumber()
+		if g.Full() {
+			fmt.Println("Game over")
+			break
+		}
+	}
 }
