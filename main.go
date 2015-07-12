@@ -16,117 +16,140 @@ var winningScore = 64
 
 type grid [][]int
 
-func (g grid) MoveRight() {
+func (g grid) MoveRight() (moved bool) {
 	for i := range g {
-		g.collapseRowRight(i)
+		m := g.collapseRowRight(i)
+		moved = m || moved
 		// combine
 		for j := len(g[i]) - 1; j > 0; j-- {
-			if g[i][j] == g[i][j-1] {
+			if g[i][j] == g[i][j-1] && g[i][j] != sen {
 				g[i][j-1] = sen
 				g[i][j] *= 2
 				j--
+				moved = true
 			}
 		}
-		g.collapseRowRight(i)
+		m = g.collapseRowRight(i)
+		moved = m || moved
 	}
+	return
 }
 
-func (g grid) collapseRowRight(ri int) {
+func (g grid) collapseRowRight(ri int) (moved bool) {
 	row := g[ri]
 	si := -1
 	for j := len(row) - 1; j >= 0; j-- {
 		if row[j] != sen && si >= 0 {
-			// fmt.Println(j, si)
 			row[j], row[si] = row[si], row[j]
 			si--
+			moved = true
 		}
 		if si == -1 && row[j] == sen {
 			si = j
 		}
 	}
+	return
 }
 
-func (g grid) MoveLeft() {
+func (g grid) MoveLeft() (moved bool) {
 	for i := range g {
-		g.collapseRowLeft(i)
+		m := g.collapseRowLeft(i)
+		moved = m || moved
 		// combine
 		for j := 0; j < len(g[i])-1; j++ {
-			if g[i][j] == g[i][j+1] {
+			if g[i][j] == g[i][j+1] && g[i][j] != sen {
 				g[i][j+1] = sen
 				g[i][j] *= 2
 				j++
+				moved = true
 			}
 		}
-		g.collapseRowLeft(i)
+		m = g.collapseRowLeft(i)
+		moved = m || moved
 	}
+	return
 }
 
-func (g grid) collapseRowLeft(ri int) {
+func (g grid) collapseRowLeft(ri int) (moved bool) {
 	row := g[ri]
 	si := -1
 	for j := 0; j < len(row); j++ {
 		if row[j] != sen && si >= 0 {
 			row[j], row[si] = row[si], row[j]
 			si++
+			moved = true
 		}
 		if si == -1 && row[j] == sen {
 			si = j
 		}
 	}
+	return
 }
 
-func (g grid) MoveDown() {
+func (g grid) MoveDown() (moved bool) {
 	for j := range g[0] {
-		g.collapseColDown(j)
+		m := g.collapseColDown(j)
+		moved = m || moved
 		for i := len(g) - 1; i > 0; i-- {
-			if g[i][j] == g[i-1][j] {
+			if g[i][j] == g[i-1][j] && g[i][j] != sen {
 				g[i][j] *= 2
 				g[i-1][j] = sen
 				i--
+				moved = true
 			}
 		}
-		g.collapseColDown(j)
+		m = g.collapseColDown(j)
+		moved = m || moved
 	}
+	return
 }
 
-func (g grid) collapseColDown(ci int) {
+func (g grid) collapseColDown(ci int) (moved bool) {
 	si := -1
 	for i := len(g) - 1; i >= 0; i-- {
 		if g[i][ci] != sen && si >= 0 {
 			g[si][ci], g[i][ci] = g[i][ci], g[si][ci]
 			si--
+			moved = true
 		}
 		if si == -1 && g[i][ci] == sen {
 			si = i
 		}
 	}
+	return
 }
 
-func (g grid) MoveUp() {
+func (g grid) MoveUp() (moved bool) {
 	for j := range g[0] {
-		g.collapseColUp(j)
+		m := g.collapseColUp(j)
+		moved = m || moved
 		for i := 0; i < len(g)-1; i++ {
-			if g[i][j] == g[i+1][j] {
+			if g[i][j] == g[i+1][j] && g[i][j] != sen {
 				g[i][j] *= 2
 				g[i+1][j] = sen
 				i++
+				moved = true
 			}
 		}
-		g.collapseColUp(j)
+		m = g.collapseColUp(j)
+		moved = m || moved
 	}
+	return
 }
 
-func (g grid) collapseColUp(ci int) {
+func (g grid) collapseColUp(ci int) (moved bool) {
 	si := -1
 	for i := 0; i < len(g); i++ {
 		if g[i][ci] != sen && si >= 0 {
 			g[si][ci], g[i][ci] = g[i][ci], g[si][ci]
 			si++
+			moved = true
 		}
 		if si == -1 && g[i][ci] == sen {
 			si = i
 		}
 	}
+	return
 }
 
 func (g grid) AddNumber() {
@@ -185,26 +208,32 @@ func main() {
 	g.AddNumber()
 	g.AddNumber()
 
+	fmt.Printf("Try to score %d!\n----------\n", winningScore)
 	for {
+		fmt.Println("----------")
 		fmt.Print(g)
 		fmt.Println("1 - Up, 2 - Down, 3 - Left, 4 - Right")
 
-		// Windows workaround
+		// Windows workaround for reading Stdin
 		t, errread := reader.ReadString('\n')
 		i, errconv := strconv.Atoi(t[0:1])
 		if errread != nil || errconv != nil || i < 1 || i > 4 {
-			fmt.Println("Exiting the game", errread, errconv)
+			fmt.Println("Exiting the game. See you soon!")
 			break
 		}
+		var moved bool
 		switch i {
 		case 1:
-			g.MoveUp()
+			moved = g.MoveUp()
 		case 2:
-			g.MoveDown()
+			moved = g.MoveDown()
 		case 3:
-			g.MoveLeft()
+			moved = g.MoveLeft()
 		case 4:
-			g.MoveRight()
+			moved = g.MoveRight()
+		}
+		if !moved {
+			continue
 		}
 		if g.Win() {
 			fmt.Printf("You won! You reached %d!\n", winningScore)
@@ -212,8 +241,10 @@ func main() {
 		}
 		g.AddNumber()
 		if g.Full() {
-			fmt.Println("Game over")
+			fmt.Println("Game over :(")
 			break
 		}
 	}
+	// To keep the screen visible on windows
+	time.Sleep(2 * time.Second)
 }
