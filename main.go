@@ -3,10 +3,13 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"math/rand"
+	"time"
 )
 
 // sentinel
 var sen = 0
+var winningScore = 64
 
 type grid [][]int
 
@@ -123,6 +126,43 @@ func (g grid) collapseColUp(ci int) {
 	}
 }
 
+func (g grid) AddNumber() {
+	possibles := make([][2]int, 0, len(g)*len(g[0]))
+
+	for i := range g {
+		for j := range g[i] {
+			if g[i][j] == sen {
+				possibles = append(possibles, [2]int{i, j})
+			}
+		}
+	}
+
+	x := possibles[rand.Intn(len(possibles))]
+	g[x[0]][x[1]] = 2
+}
+
+func (g grid) Win() bool {
+	for i := range g {
+		for j := range g[i] {
+			if g[i][j] == winningScore {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (g grid) Full() bool {
+	for i := range g {
+		for j := range g[i] {
+			if g[i][j] == sen {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func (g grid) String() string {
 	var b bytes.Buffer
 	for i := range g {
@@ -132,12 +172,11 @@ func (g grid) String() string {
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	g := grid{
-		[]int{2, 2, 4, 8},
-		[]int{2, 4, 4, 4},
-		[]int{0, 8, 0, 4},
-		[]int{0, 4, 0, 4}}
-	fmt.Println(g)
-	g.MoveUp()
-	fmt.Println(g)
+		[]int{2, 0, 4, 0},
+		[]int{2, 0, 4, 4},
+		[]int{0, 0, 0, 4},
+		[]int{0, 0, 0, 0}}
+	fmt.Print(g)
 }
