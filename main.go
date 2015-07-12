@@ -25,8 +25,8 @@ func (g grid) MoveRight() {
 	}
 }
 
-func (g grid) collapseRowRight(rowno int) {
-	row := g[rowno]
+func (g grid) collapseRowRight(ri int) {
+	row := g[ri]
 	si := -1
 	for j := len(row) - 1; j >= 0; j-- {
 		if row[j] != sen && si >= 0 {
@@ -55,8 +55,8 @@ func (g grid) MoveLeft() {
 	}
 }
 
-func (g grid) collapseRowLeft(rowno int) {
-	row := g[rowno]
+func (g grid) collapseRowLeft(ri int) {
+	row := g[ri]
 	si := -1
 	for j := 0; j < len(row); j++ {
 		if row[j] != sen && si >= 0 {
@@ -65,6 +65,60 @@ func (g grid) collapseRowLeft(rowno int) {
 		}
 		if si == -1 && row[j] == sen {
 			si = j
+		}
+	}
+}
+
+func (g grid) MoveDown() {
+	for j := range g[0] {
+		g.collapseColDown(j)
+		for i := len(g) - 1; i > 0; i-- {
+			if g[i][j] == g[i-1][j] {
+				g[i][j] *= 2
+				g[i-1][j] = sen
+				i--
+			}
+		}
+		g.collapseColDown(j)
+	}
+}
+
+func (g grid) collapseColDown(ci int) {
+	si := -1
+	for i := len(g) - 1; i >= 0; i-- {
+		if g[i][ci] != sen && si >= 0 {
+			g[si][ci], g[i][ci] = g[i][ci], g[si][ci]
+			si--
+		}
+		if si == -1 && g[i][ci] == sen {
+			si = i
+		}
+	}
+}
+
+func (g grid) MoveUp() {
+	for j := range g[0] {
+		g.collapseColUp(j)
+		for i := 0; i < len(g)-1; i++ {
+			if g[i][j] == g[i+1][j] {
+				g[i][j] *= 2
+				g[i+1][j] = sen
+				i++
+			}
+		}
+		g.collapseColUp(j)
+	}
+}
+
+func (g grid) collapseColUp(ci int) {
+	si := -1
+	for i := 0; i < len(g); i++ {
+		if g[i][ci] != sen && si >= 0 {
+			g[si][ci], g[i][ci] = g[i][ci], g[si][ci]
+			si++
+		}
+		if si == -1 && g[i][ci] == sen {
+			si = i
 		}
 	}
 }
@@ -84,6 +138,6 @@ func main() {
 		[]int{0, 8, 0, 4},
 		[]int{0, 4, 0, 4}}
 	fmt.Println(g)
-	g.MoveLeft()
+	g.MoveUp()
 	fmt.Println(g)
 }
