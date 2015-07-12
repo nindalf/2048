@@ -154,7 +154,6 @@ func (g grid) collapseColUp(ci int) (moved bool) {
 
 func (g grid) AddNumber() {
 	possibles := make([][2]int, 0, len(g)*len(g[0]))
-
 	for i := range g {
 		for j := range g[i] {
 			if g[i][j] == sen {
@@ -189,6 +188,19 @@ func (g grid) Full() bool {
 	return true
 }
 
+func (g grid) Cheatcode() bool {
+	var x [2]int // store the max value
+	for i := range g {
+		for j := range g[i] {
+			if g[x[0]][x[1]] < g[i][j] {
+				x[0], x[1] = i, j
+			}
+		}
+	}
+	g[x[0]][x[1]] *= 2
+	return true
+}
+
 func (g grid) String() string {
 	var b bytes.Buffer
 	for i := range g {
@@ -208,16 +220,15 @@ func main() {
 	g.AddNumber()
 	g.AddNumber()
 
-	fmt.Printf("Try to score %d!\n----------\n", winningScore)
+	fmt.Printf("Try to score %d!\n", winningScore)
 	for {
-		fmt.Println("----------")
-		fmt.Print(g)
+		fmt.Printf("----------\n%v", g)
 		fmt.Println("1 - Up, 2 - Down, 3 - Left, 4 - Right")
 
 		// Windows workaround for reading Stdin
 		t, errread := reader.ReadString('\n')
 		i, errconv := strconv.Atoi(t[0:1])
-		if errread != nil || errconv != nil || i < 1 || i > 4 {
+		if errread != nil || errconv != nil || !((i > 0 && i < 5) || i == 9) {
 			fmt.Println("Exiting the game. See you soon!")
 			break
 		}
@@ -231,11 +242,14 @@ func main() {
 			moved = g.MoveLeft()
 		case 4:
 			moved = g.MoveRight()
+		case 9:
+			moved = g.Cheatcode()
 		}
 		if !moved {
 			continue
 		}
 		if g.Win() {
+			fmt.Printf("----------\n%v", g)
 			fmt.Printf("You won! You reached %d!\n", winningScore)
 			break
 		}
