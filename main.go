@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"math/rand"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -173,18 +176,24 @@ func (g grid) String() string {
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
+	reader := bufio.NewReader(os.Stdin)
 	g := grid{
-		[]int{2, 0, 4, 0},
-		[]int{2, 0, 4, 4},
-		[]int{0, 0, 0, 4},
+		[]int{0, 0, 0, 0},
+		[]int{0, 0, 0, 0},
+		[]int{0, 0, 0, 0},
 		[]int{0, 0, 0, 0}}
-	var i int
+	g.AddNumber()
+	g.AddNumber()
+
 	for {
 		fmt.Print(g)
 		fmt.Println("1 - Up, 2 - Down, 3 - Left, 4 - Right")
-		_, err := fmt.Scanf("%d", &i)
-		if err != nil || i < 1 || i > 4 {
-			fmt.Println("Exiting the game")
+
+		// Windows workaround
+		t, errread := reader.ReadString('\n')
+		i, errconv := strconv.Atoi(t[0:1])
+		if errread != nil || errconv != nil || i < 1 || i > 4 {
+			fmt.Println("Exiting the game", errread, errconv)
 			break
 		}
 		switch i {
