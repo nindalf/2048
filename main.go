@@ -211,7 +211,9 @@ func (g grid) String() string {
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
+	cheatsOn, _ := strconv.ParseBool(os.Getenv("CHEATS_ENABLED"))
 	reader := bufio.NewReader(os.Stdin)
+
 	g := grid{
 		[]int{0, 0, 0, 0},
 		[]int{0, 0, 0, 0},
@@ -243,7 +245,9 @@ func main() {
 		case 4:
 			moved = g.MoveRight()
 		case 9:
-			moved = g.Cheatcode()
+			if cheatsOn {
+				moved = g.Cheatcode()
+			}
 		}
 		if !moved {
 			continue
