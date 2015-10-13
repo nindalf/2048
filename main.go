@@ -221,32 +221,38 @@ func main() {
 	b.AddNumber()
 
 	fmt.Printf("Try to score %d!\n", winningScore)
+GameLoop:
 	for {
 		fmt.Printf("----------\n%v", b)
-		fmt.Println("1 - Up, 2 - Down, 3 - Left, 4 - Right")
+		fmt.Println("2 - Down, 4 - Left, 6 - Right, 8 - Up")
 
 		// Windows workaround for reading Stdin
 		t, errread := reader.ReadString('\n')
 		i, errconv := strconv.Atoi(t[0:1])
-		if errread != nil || errconv != nil || !((i > 0 && i < 5) || i == 9) {
-			fmt.Println("Exiting the game. See you soon!")
-			break
+
+		if errread != nil || errconv != nil {
+			i = -1
 		}
+
 		b.moved = false
 		switch i {
-		case 1:
-			b.MoveUp()
 		case 2:
 			b.MoveDown()
-		case 3:
-			b.MoveLeft()
 		case 4:
+			b.MoveLeft()
+		case 6:
 			b.MoveRight()
+		case 8:
+			b.MoveUp()
 		case 9:
 			if cheatsOn {
 				b.Cheatcode()
 			}
+		default:
+			fmt.Println("Invalid input. Exiting the game. See you soon!")
+			break GameLoop
 		}
+
 		if !b.moved {
 			continue
 		}
